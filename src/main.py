@@ -88,6 +88,7 @@ for i in range(0, int(len(data) / stride)):
             print(ncoreTable)
 
             for n in N_eps_prev:
+                # TODO: if n is n-core
                 if n[2] >= currentTime and Connet(p, n):
                     mst += 1
 
