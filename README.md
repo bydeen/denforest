@@ -1,0 +1,1 @@
+python3.8 main.py ./input.csv 5 0.2 100 10
