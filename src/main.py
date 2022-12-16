@@ -5,7 +5,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import geopandas as gpd
+# import geopandas as gpd
 
 import denforest
 import lctree
