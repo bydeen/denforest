@@ -5,7 +5,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import geopandas as gpd
+# import geopandas as gpd
 
 import denforest
 import lctree
@@ -89,7 +89,7 @@ for i in range(0, int(len(data) / stride)):
 
             for n in N_eps_prev:
                 # TODO: if n is n-core
-                if n[2] >= currentTime and Connet(p, n):
+                if n[2] >= currentTime and Connect(p, n):
                     mst += 1
 
             # determine the type of cluster evolution by the mst value
