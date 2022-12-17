@@ -29,7 +29,7 @@ ncoreTable = {}
 
 for i in range(0, int(len(data) / stride)):
     
-    # data points in the same stride
+    # New data points in the same stride
     spts = data[i * stride:(i + 1) * stride]
 
     # add timestamp for each data points
@@ -49,7 +49,7 @@ for i in range(0, int(len(data) / stride)):
         # make N_eps_prev set
         N_eps_prev = np.empty([0, 3])
         for d in wpts:
-            dist = math.dist(p, d)
+            dist = math.dist(p[0:2], d[0:2])
             if p is not d and dist <= eps:
                 N_eps_prev = np.vstack((N_eps_prev, d))
         
@@ -83,7 +83,24 @@ for i in range(0, int(len(data) / stride)):
                 evol_type = "merged"
 
         # TODO: STEP 4: Updating Borders
+    Eq = []
+    # Delete
+    if(i * stride > window):
+        # Outdated data points in the stride
+        spts = data[(i * stride) - window:(i + 1) * stride - window]
 
-    # TODO: Delete
+        for q in spts:
+            # Window에서 하나씩 deletion
+            wpts = np.delete(wpts,0,0)
+
+            print(q)
+            # Window 상에서 deletion 되는 점들의 n-core 여부
+            for d in wpts:
+                dist = math.dist(q, d[0:2])
+                if d is not q and dist <= eps:
+                    for i in range(list(ncoreTable.keys())):
+                        if (i < currentTime):
+                            Eq.append(i)
+
 
     currentTime += 1
