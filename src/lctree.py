@@ -10,7 +10,7 @@ class Node:
         self.y = y
         self.T = T
 
-        self.label = ""
+        self.label = ''
         self.Tc = 0
     
 class Edge:
