@@ -112,13 +112,14 @@ for i in range(0, int(len(data) / stride)):
                 evol_type = "split"
 
             for y in edgeTable[x]:
-                Cut(x, y)
+                Cut(x, y[0])
 
             # Reclassify x as either border or noise by the |L| value
-            for d in wpts:
-                dist = math.dist(x[0:2], d[0:2])
-                if(d is not x and dist < eps):
-
+            # If |L| >= 1, x is border, if not, noise.
+            if lenOfL >= 1:
+                x is border
+            else:
+                x is noise
 
             
 
