@@ -1,11 +1,17 @@
-def Connect(p, q):
-    edge_ps.wgt = min(p.Ts, q.Ts)
-    if(Connected(p,q)):
-        edge_rs = FindMin(p,q)
-        if(edge_rs.wgt < edge_ps.wgt):
-            Cut(r,s)
-            Link(p,q)
+import lctree
+
+# connect two points in the Link-Cut tree
+def Connect(p, q, edgeTable):
+    pqWeight = lctree.min(p.Tc, q.Tc)
+
+    if lctree.Connected(p, q) == True:
+        rs = lctree.FindMinE(p, q, edgeTable)
+
+        if rs != None and rs.weight <= pqWeight:
+            lctree.Cut(r, s, edgeTable)
+            lctree.Link(p, q, edgeTable)
+        
         return False
     else:
-        Link(p,q)
+        lctree.Link(p, q, edgeTable)
         return True

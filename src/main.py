@@ -24,8 +24,12 @@ data = np.loadtxt(open(inputFile), delimiter=",") # dataset
 # start time set to zero
 currentTime = 0
 
-# hash table for n-cores
+# hash table for n-cores, Tc as a key
 ncoreTable = {}
+
+# hash table for DenTree
+nodeTable = {} # contains all the data points in the window, (x, y) as key
+edgeTable = {} # ((v.x, v.y), (w.x, w.y)) as key
 
 for i in range(0, int(len(data) / stride)):
     
@@ -44,12 +48,15 @@ for i in range(0, int(len(data) / stride)):
     # Insert
     for p in spts:
         # TODO: insert p into the SpatialIndex
-        
+        # add to nodeTable, delete when doing deletion
+        newNode = lctree.Node(p[0], p[1], currentTime)
+        nodeTable.update({(p[0], p[1]):newNode})
+
         # STEP 1: Point Classification
         # make N_eps_prev set
         N_eps_prev = np.empty([0, 3])
         for d in wpts:
-            dist = math.dist(p, d)
+            dist = math.dist(p[:2], d[:2])
             if p is not d and dist <= eps:
                 N_eps_prev = np.vstack((N_eps_prev, d))
         
@@ -62,28 +69,37 @@ for i in range(0, int(len(data) / stride)):
 
             # q is a point such that its timestamp q.T is the tau-th largest
             # p.Tc = q.T + |W|
-            expT = sorted_N_eps_prev[tau - 1][2] + window
+            Tc = int(sorted_N_eps_prev[tau - 1][2] + window)
+            nodeTable[p[0], p[1]].Tc = Tc
+            nodeTable[p[0], p[1]].label = "ncore"
 
             # hashmap with core-expiration time as key and (x, y, T) as value
-            ncoreTable.update({int(expT):p})
+            ncoreTable.update({Tc:p})
 
             for key in ncoreTable:
                 n = ncoreTable[key]
 
                 if p is not n and n in N_eps_prev:
-                    if key >= currentTime and denforest.Connect(p, n):
+                    # if key >= currentTime and denforest.Connect(p, n):
+                    if key >= currentTime and denforest.Connect(nodeTable[p[0], p[1]], nodeTable[n[0], n[1]], edgeTable):
                         mst += 1
-
+                
             # determine the type of cluster evolution by the mst value
             if mst == 0:
-                evol_type = "emerges"
+                evolType = 'emerge'
+                # print("Cluster Emerges")
             elif mst == 1:
-                evol_type = "expands"
+                evolType = 'expand'
+                # print("Cluster Expands")
             else:
-                evol_type = "merged"
-
+                evolType = 'merged'
+                # print("Cluster Merged")
+            
         # TODO: STEP 4: Updating Borders
 
     # TODO: Delete
 
     currentTime += 1
+
+for d in nodeTable:
+    print(d, nodeTable[d].label)
