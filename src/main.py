@@ -92,17 +92,36 @@ for i in range(0, int(len(data) / stride)):
         spts = data[(i * stride) - window:(i + 1) * stride - window]
 
         for q in spts:
-            # Window에서 하나씩 deletion
+            # Delete q from the SpatialIndex
+            # 순서를 바꾸어도 괜찮은지..?
             wpts = np.delete(wpts,0,0)
 
-            print(q)
-            # Window 상에서 deletion 되는 점들의 n-core 여부
-            for d in wpts:
-                dist = math.dist(q, d[0:2])
-                if d is not q and dist <= eps:
-                    for i in range(list(ncoreTable.keys())):
-                        if (i < currentTime):
-                            Eq.append(i)
+            # print(q)
+            # Step1 : q가 deletion 됐을 때 주변점들의 n-core 여부
+            for ncore in ncoreTable[currentTime]:
+                dist = math.dist(q, ncore[0:2])
+                if q is not ncore and dist <= eps:
+                    Eq.append(ncore)
+        
+        # Step 2
+        for x in Eq:
+            lenOfL = len(edgeTable[x])
+            if lenOfL == 0:
+                evol_type = "dissipates"
+            elif lenOfL == 1:
+                evol_type = "shrinks"
+            else:
+                evol_type = "split"
 
+            for y in edgeTable[x]:
+                Cut(x, y)
+
+            # Reclassify x as either border or noise by the |L| value
+            for d in wpts:
+                dist = math.dist(x[0:2], d[0:2])
+                if(d is not x and dist < eps):
+
+
+            
 
     currentTime += 1
