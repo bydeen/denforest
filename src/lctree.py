@@ -173,7 +173,6 @@ print(n4.left.x, n4.right)
 
 print(FindRoot(n1).x, FindRoot(n2).x, FindRoot(n3).x, FindRoot(n4).x)
 # print(n1.left)
-# print(n1.right)
 # make n a root node
 # print(n2.parent)
 Access(n1)
