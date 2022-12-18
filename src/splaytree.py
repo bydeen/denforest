@@ -43,6 +43,7 @@ def rightRotate(x):
         y.right = x
     x.parent = y
 
+# splay tree keeps frequentlly accessed nodes close to the top
 # moves x to the root node
 def Splay(x):
     while isRoot(x) == False:
