@@ -135,36 +135,34 @@ for i in range(0, int(len(data) / stride)):
 
             # STEP 1: Finding Expiring Nostalgic Cores
             Eq = ncoreTable.get(currentTime) # set of ncores expired by the deletion of q
-            # if Eq != None:
-            #     for n in Eq:
-            
+            if Eq != None:
+                for x in Eq:
+                    L = [] # set of ncores linked to x
                     
-            #     dist = math.dist(q, ncore[0:2])
-            #     if q is not ncore and dist <= eps:
-            #         Eq.append(ncore)
-        
-            # Step 2
-            # for x in Eq:
-            #     lenOfL = len(edgeTable[x])
-            #     if lenOfL == 0:
-            #         evol_type = "dissipates"
-            #     elif lenOfL == 1:
-            #         evol_type = "shrinks"
-            #     else:
-            #         evol_type = "split"
+                    if edgeTable.get(x) != None:
+                        for edge in edgeTable[x]:
+                            if edge.m.label == 'ncore':
+                                L.append(edge.m)
+                    
+                    # STEP 2: Cutting Links from MSTs
+                    if len(L) == 0:
+                        evolType = 'dissipates'
+                    elif len(L) == 1:
+                        evolType = 'shrinks'
+                    else:
+                        evoltype = 'split'
 
-            #     for y in edgeTable[x]:
-            #         lctree.Cut(x, y[0])
+                    for y in L:
+                        lctree.Cut(x, y, edgeTable)
 
-            #     # Reclassify x as either border or noise by the |L| value
-            #     # If |L| >= 1, x is border, if not, noise.
-            #     if lenOfL >= 1:
-            #         x is border
-            #     else:
-            #         x is noise
+                    # Reclassify x as either border or noise by the |L| value
+                    if len(L) >= 1:
+                        x.label = 'border'
+                    else:
+                        x.label = 'noise'
         
             # delete from the nodeTable
-            # del nodeTable[qcoord]
+            del nodeTable[qcoord]
 
     currentTime += 1
 
