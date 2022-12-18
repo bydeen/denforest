@@ -35,13 +35,23 @@ def Link(n, m, edgeTable):
     m.left = n
     n.parent = m
 
-    # add edge to the edgeTable        
-    # if n in edgeTable:
-    #     edgeTable[n].append(m, edge)
-    # else
-    #     edgeTable.update({n:[(m, edge)]})
-    # edgeTable.update({(n, m):edge})
-    # edgeTable[n, m].weight = min(n.Tc, m.Tc)
+    # add edge n to m to the edgeTable
+    edge1 = Edge(n, m)
+    edge1.weight = min(n.Tc, m.Tc)
+    
+    if n in edgeTable:
+        edgeTable[n].append(edge1)
+    else:
+        edgeTable.update({n:[edge1]})
+    
+    # add edge m to n to the edgeTable
+    edge2 = Edge(m, n)
+    edge2.weight = min(m.Tc, n.Tc)
+    
+    if m in edgeTable:
+        edgeTable[m].append(edge2)
+    else:
+        edgeTable.update({m:[edge2]})
 
 # cut a link between nodes n and m
 def Cut(n, m, edgeTable):
@@ -50,8 +60,21 @@ def Cut(n, m, edgeTable):
     m.left = None
     n.parent = None
     
-    # delete edge from the edge table
-    # edgeTable.pop(n, m)
+    # delete edge n to m from the edge table
+    for edge in edgeTable[n]:
+        if edge.n == n:
+            edgeTable[n].remove(edge)
+                
+    if not edgeTable[n]:
+        edgeTable.pop(n)
+    
+    # delete edge m to n from the edge table
+    for edge in edgeTable[m]:
+        if edge.n == m:
+            edgeTable[m].remove(edge)
+            
+    if not edgeTable[m]:
+        edgeTable.pop(m)
 
 # check if a path exists between nodes n and m
 def Connected(n, m):

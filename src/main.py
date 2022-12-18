@@ -135,9 +135,10 @@ for i in range(0, int(len(data) / stride)):
 
             # STEP 1: Finding Expiring Nostalgic Cores
             Eq = ncoreTable.get(currentTime) # set of ncores expired by the deletion of q
-            if Eq != None:
-                for n in Eq:
-                    print(n)
+            # if Eq != None:
+            #     for n in Eq:
+            
+                    
             #     dist = math.dist(q, ncore[0:2])
             #     if q is not ncore and dist <= eps:
             #         Eq.append(ncore)
