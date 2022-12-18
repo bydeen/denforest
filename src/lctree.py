@@ -19,13 +19,6 @@ class Edge:
         self.m = m
         self.weight = 0
 
-# return smaller number
-def min(a, b):
-    if a < b:
-        return a
-    else:
-        return b
-
 # link n to link-cut tree's root with chain
 def Access(n):
     splaytree.Splay(n)
@@ -42,9 +35,13 @@ def Link(n, m, edgeTable):
     m.left = n
     n.parent = m
 
-    edge = Edge(n, m)
-    edgeTable.update({(n, m):edge})
-    edgeTable[n, m].weight = min(n.Tc, m.Tc)
+    # add edge to the edgeTable        
+    # if n in edgeTable:
+    #     edgeTable[n].append(m, edge)
+    # else
+    #     edgeTable.update({n:[(m, edge)]})
+    # edgeTable.update({(n, m):edge})
+    # edgeTable[n, m].weight = min(n.Tc, m.Tc)
 
 # cut a link between nodes n and m
 def Cut(n, m, edgeTable):
@@ -52,6 +49,9 @@ def Cut(n, m, edgeTable):
     Access(m)
     m.left = None
     n.parent = None
+    
+    # delete edge from the edge table
+    # edgeTable.pop(n, m)
 
 # check if a path exists between nodes n and m
 def Connected(n, m):
@@ -78,15 +78,17 @@ def FindMinE(n, m, edgeTable):
 
     splaytree.Splay(m)
     m.right = None
-
+    
     # initialize the minumum weighted edge
-    if (m, m.parent) in edgeTable:
+    if (m, m.parent) in edgeTable: # TODO
         e = edgeTable[m, m.parent]
     else:
         e = None
 
     # find the minimum weighted edge
     while(m.parent != None):
+
+        # TODO
         if (m, m.parent) in edgeTable and (e == None or e.weight > edgeTable[m, m.parent].weight):
             e = edgeTable[m, m.parent]
         splaytree.Splay(m.parent)
