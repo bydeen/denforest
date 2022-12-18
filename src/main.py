@@ -36,7 +36,7 @@ edgeTable = {} # contains all the edges in the DenTree, Node n as key, (Node m, 
 
 for i in range(0, int(len(data) / stride)):
     
-    # data points in the same stride
+    # New data points in the same stride
     spts = data[i * stride:(i + 1) * stride]
 
     # add timestamp for each data points
@@ -166,7 +166,6 @@ for i in range(0, int(len(data) / stride)):
 
     currentTime += 1
 
-
 # Clustering Result Print Labels
 # for d in nodeTable:
 #     print(d, nodeTable[d].label)
@@ -193,4 +192,3 @@ plt.scatter(x2, y2, s=3)
 plt.scatter(x3, y3, color='grey', s=3)
 
 plt.show()
-# %%
