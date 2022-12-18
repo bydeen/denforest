@@ -36,7 +36,7 @@ edgeTable = {} # contains all the edges in the DenTree, Node n as key, (Node m, 
 
 for i in range(0, int(len(data) / stride)):
     
-    # data points in the same stride
+    # New data points in the same stride
     spts = data[i * stride:(i + 1) * stride]
 
     # add timestamp for each data points
@@ -71,7 +71,7 @@ for i in range(0, int(len(data) / stride)):
             # STEP 2: Determination of Core-expiration Time
             # Python dictionary preserves the insertion order
             # q is a point such that its timestamp q.T is the tau-th largest, p.Tc = q.T + |W|
-            Tc = list(NepsPrev.values())[tau - 1].T + window / stride
+            Tc = int(list(NepsPrev.values())[tau - 1].T + window / stride)
             pnode.Tc = Tc
             pnode.label = 'ncore'
 
@@ -162,10 +162,9 @@ for i in range(0, int(len(data) / stride)):
                         x.label = 'noise'
         
             # delete from the nodeTable
-            del nodeTable[qcoord]
+            # del nodeTable[qcoord]
 
     currentTime += 1
-
 
 # Clustering Result Print Labels
 # for d in nodeTable:
@@ -193,4 +192,3 @@ plt.scatter(x2, y2, s=3)
 plt.scatter(x3, y3, color='grey', s=3)
 
 plt.show()
-# %%
