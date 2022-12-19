@@ -5,69 +5,37 @@ def isRoot(x):
     else:
         return False
     
-# check if x is left child
-def isLeft(x):
-    if x == x.parent.left:
-        return True
-    else:
-        return False
-
-# for lazy propagation
-def Push(x):
-    if x.flip == 0:
-        return
-    
-    x.flip = 0
-    
-    # swap left and right child
-    temp = x.left
-    x.left = x.right
-    x.right = temp
-    
-    if x.left != None:
-        x.left.flip ^= 1
-    if x.right != None:
-        x.right.flip ^= 1
-    
 def Rotate(x):
-    if isLeft(x) == True:
-        if x.right != None:
-            x.right.parent = x.parent
-        x.parent.left = x.right
-        x.right = x.parent
-    else:
-        if x.left != None:
-            x.left.parent = x.parent
-        x.parent.right = x.left
-        x.left = x.parent
-        
-    if isRoot(x.parent) == False:
-        if isLeft(x.parent) == True:
-            x.parent.parent.left = x
-        else:
-            x.parent.parent.right = x
+    p = x.parent
     
-    temp = x.parent
-    x.parent = temp.parent
-    temp.parent = x
+    if x == p.left:
+        p.left = x.right
+        x.right = p
+        if p.left != None:
+            p.left.parent = p
+    else:
+        p.right = x.left
+        x.left = p
+        if p.right != None:
+            p.right.parent = p
+    
+    x.parent = p.parent
+    p.parent = x
+    
+    if x.parent != None:
+        if p == x.parent.left:
+            x.parent.left = x
+        elif p == x.parent.right:
+            x.parent.right = x
 
 # splay tree keeps frequentlly accessed nodes close to the top
 def Splay(x):
     while isRoot(x) == False:
-        if isRoot(x.parent) == False:
-            Push(x.parent.parent)
-            
-        Push(x.parent)
-        Push(x)
-        
-        if isRoot(x.parent) == True:
-            continue
-        
-        if (x == x.parent.left) == (x.parent == x.parent.parent.left):
-            Rotate(x.parent)
-        else:
-            Rotate(x)
+        p = x.parent
+        if isRoot(p) == False:
+            if (x == p.left) == (p == p.parent.left):
+                Rotate(p)
+            else:
+                Rotate(x)
         
         Rotate(x)
-    
-    Push(x)

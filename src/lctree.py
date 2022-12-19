@@ -7,8 +7,6 @@ class Node:
         self.left = None
         self.right = None
         
-        self.flip = 0
-
         self.x = x
         self.y = y
         self.T = T
@@ -27,18 +25,19 @@ class Edge:
 def Access(n):
     splaytree.Splay(n)
     n.right = None
+    
     while n.parent != None:
-        splaytree.Splay(n.parent)
-        n.parent.right = n
-        if n.parent != None:
-            splaytree.Splay(n)
+        m = n.parent
+        splaytree.Splay(m)
+        m.right = n
+        splaytree.Splay(n)
 
 # link nodes n and m in different trees
 def Link(n, m, edgeTable):
-    Access(m)
     Access(n)
-    m.left = n
-    n.parent = m
+    Access(m)
+    n.left = m
+    m.parent = n
     
     # add edge n to m to the edgeTable
     edge1 = Edge(n, m)
@@ -60,6 +59,9 @@ def Link(n, m, edgeTable):
 
 # cut a link between nodes n and m
 def Cut(n, m, edgeTable):
+    if Connected(n, m) == False:
+        return
+
     Access(n)
     Access(m)
 
