@@ -1,47 +1,13 @@
-#%%
 import sys
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 
 import denforest
 import lctree
 
-def Result(name, nodeTable):
-    # Clustering Result Print Labels
-    # for d in nodeTable:
-    #     print(d, nodeTable[d].label)
-
-    # Clustering Result Visualization
-    cTable = {} # ncore
-    bTable = {} # border
-    nTable = {} # noise
-
-    for d in nodeTable:
-        if nodeTable[d].label == 'ncore':
-            cTable.update({d:nodeTable[d]})
-        elif nodeTable[d].label == 'border':
-            bTable.update({d:nodeTable[d]})
-        else:
-            nTable.update({d:nodeTable[d]})
-            
-    x1, y1 = zip(*cTable.keys())
-    x2, y2 = zip(*bTable.keys())
-    x3, y3 = zip(*nTable.keys())
-
-    plt.scatter(x3, y3, color='grey', s=3)
-    plt.scatter(x2, y2, s=3)
-    plt.scatter(x1, y1, color='red', s=3)
-
-    plt.show()
-    filepath = './results/' + str(name)
-    plt.savefig(name)
-
-
 # Input data is in format (x, y) and sorted in time order
 # Use count-based window
 # The data points in the same stride are processed together
-
 inputFile = sys.argv[1]
 tau = int(sys.argv[2])
 eps = float(sys.argv[3])
@@ -61,7 +27,7 @@ nodeTable = {} # contains all the data points in the window, (x, y) as key
 edgeTable = {} # contains all the edges in the DenTree, Node n as key, (Node m, edge weight) as value
 
 for i in range(0, int(len(data) / stride)):
-    print(currentTime)
+    print('Stride', currentTime, 'Processing')
     
     # New data points in the same stride
     spts = data[i * stride:(i + 1) * stride]
@@ -147,51 +113,49 @@ for i in range(0, int(len(data) / stride)):
         if pnode.label == '':
             pnode.label = 'noise'
             
-    # # Delete
-    # if(i * stride >= window):
+    # Delete
+    if(i * stride >= window):
         
-    #     # Outdated data points in the stride
-    #     spts = data[(i * stride) - window:(i + 1) * stride - window]
+        # Outdated data points in the stride
+        spts = data[(i * stride) - window:(i + 1) * stride - window]
         
-    #     for q in spts:
-    #         qcoord = (q[0], q[1]) # coordinates
+        for q in spts:
+            qcoord = (q[0], q[1]) # coordinates
 
-    #         # STEP 1: Finding Expiring Nostalgic Cores
-    #         Eq = [] # set of ncores expired by the deletion of q
-    #         if ncoreTable.get(currentTime) != None:
-    #             Eq = ncoreTable[currentTime]
-    #             del ncoreTable[currentTime]
+            # STEP 1: Finding Expiring Nostalgic Cores
+            Eq = [] # set of ncores expired by the deletion of q
+            if ncoreTable.get(currentTime) != None:
+                Eq = ncoreTable[currentTime]
+                del ncoreTable[currentTime]
             
-    #         # if Eq != None:
-    #         for x in Eq:
-    #             L = [] # set of ncores linked to x
+            # if Eq != None:
+            for x in Eq:
+                L = [] # set of ncores linked to x
                 
-    #             if edgeTable.get(x) != None:
-    #                 for edge in edgeTable[x]:
-    #                     if edge.m.label == 'ncore':
-    #                         L.append(edge.m)
+                if edgeTable.get(x) != None:
+                    for edge in edgeTable[x]:
+                        if edge.m.label == 'ncore':
+                            L.append(edge.m)
 
-    #             # STEP 2: Cutting Links from MSTs
-    #             if len(L) == 0:
-    #                 evolType = 'dissipates'
-    #             elif len(L) == 1:
-    #                 evolType = 'shrinks'
-    #             else:
-    #                 evoltype = 'split'
+                # STEP 2: Cutting Links from MSTs
+                if len(L) == 0:
+                    evolType = 'dissipates'
+                elif len(L) == 1:
+                    evolType = 'shrinks'
+                else:
+                    evoltype = 'split'
                     
-    #             flag = 0
     #             for y in L:
     #                 lctree.Cut(x, y, edgeTable)
 
-    #             # Reclassify x as either border or noise by the |L| value
-    #             if len(L) >= 1:
-    #                 x.label = 'border'
-    #             else:
-    #                 x.label = 'noise'
+                # Reclassify x as either border or noise by the |L| value
+                if len(L) >= 1:
+                    x.label = 'border'
+                else:
+                    x.label = 'noise'
             
-    #         nodeTable.pop(qcoord, 'already deleted')
+            # nodeTable.pop(qcoord, 'already deleted')
     
     currentTime += 1
 
-Result('result', nodeTable)
-# %%
+denforest.Result('result', nodeTable)
