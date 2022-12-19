@@ -37,5 +37,4 @@ def Splay(x):
                 Rotate(p)
             else:
                 Rotate(x)
-        
         Rotate(x)
