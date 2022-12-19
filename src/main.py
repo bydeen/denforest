@@ -101,6 +101,7 @@ for i in range(0, int(len(data) / stride)):
                         dnode.Tc = pnode.Tc
                 elif dnode.label == '' or dnode.label == 'noise':
                     dnode.label = 'border'
+                    dnode.Tc = pnode.Tc
         else:
             for d in NepsPrev:
                 dnode = nodeTable[d[0], d[1]]
@@ -108,7 +109,7 @@ for i in range(0, int(len(data) / stride)):
                 if dnode.label == 'ncore':
                     pnode.label = 'border'
                     if pnode.Tc > dnode.Tc:
-                        dnode.Tc = pnode.Tc
+                        pnode.Tc = dnode.Tc
 
         if pnode.label == '':
             pnode.label = 'noise'
@@ -154,5 +155,6 @@ for i in range(0, int(len(data) / stride)):
             nodeTable.pop((q[0], q[1]), 'already deleted')
     
     currentTime += 1
+    # denforest.Result(str(currentTime), nodeTable)
 
 denforest.Result('result', nodeTable)
