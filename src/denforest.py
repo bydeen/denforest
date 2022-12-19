@@ -7,9 +7,7 @@ def Connect(p, q, edgeTable):
     if lctree.Connected(p, q) == True:
         rs = lctree.FindMinE(p, q, edgeTable)
         
-        # rs가 None일 수는 없음 Connected가 true이기 때문에
-        
-        if rs != None and rs.weight <= pqWeight:
+        if rs.weight <= pqWeight:
             lctree.Cut(rs.n, rs.m, edgeTable)
             lctree.Link(p, q, edgeTable)
         

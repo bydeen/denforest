@@ -3,70 +3,71 @@ def isRoot(x):
     if x.parent == None or (x.parent.left != x and x.parent.right != x):
         return True
     else:
-        return False        
-
-def leftRotate(x):
-    y = x.right
-    if y != None:
-        x.right = y.left
-        if y.left != None:
-            y.left.parent = x
-        y.parent = x.parent
-
-    if x.parent == None:
-        root = y
-    elif x == x.parent.left:
-        x.parent.left = y
-    else:
-        x.parent.right = y
+        return False
     
-    if y != None:
-        y.left = x
-    x.parent = y
-
-def rightRotate(x):
-    y = x.left
-    if y != None:
-        x.left = y.right
-        if y.right != None:
-            y.right.parent = x
-        y.parent = x.parent
-
-    if x.parent == None:
-        root = y
-    elif x == x.parent.left:
-        x.parent.left = y
+# check if x is left child
+def isLeft(x):
+    if x == x.parent.left:
+        return True
     else:
-        x.parent.right = y
+        return False
+
+# for lazy propagation
+def Push(x):
+    if x.flip == 0:
+        return
     
-    if y != None:
-        y.right = x
-    x.parent = y
+    x.flip = 0
+    
+    # swap left and right child
+    temp = x.left
+    x.left = x.right
+    x.right = temp
+    
+    if x.left != None:
+        x.left.flip ^= 1
+    if x.right != None:
+        x.right.flip ^= 1
+    
+def Rotate(x):
+    if isLeft(x) == True:
+        if x.right != None:
+            x.right.parent = x.parent
+        x.parent.left = x.right
+        x.right = x.parent
+    else:
+        if x.left != None:
+            x.left.parent = x.parent
+        x.parent.right = x.left
+        x.left = x.parent
+        
+    if isRoot(x.parent) == False:
+        if isLeft(x.parent) == True:
+            x.parent.parent.left = x
+        else:
+            x.parent.parent.right = x
+    
+    temp = x.parent
+    x.parent = temp.parent
+    temp.parent = x
 
 # splay tree keeps frequentlly accessed nodes close to the top
-# moves x to the root node
 def Splay(x):
     while isRoot(x) == False:
+        if isRoot(x.parent) == False:
+            Push(x.parent.parent)
+            
+        Push(x.parent)
+        Push(x)
+        
         if isRoot(x.parent) == True:
-            # zig
-            if x.parent.left == x:
-                rightRotate(x.parent)
-            # zag
-            else:
-                leftRotate(x.parent)
-        # zigzig
-        elif x.parent.left == x and x.parent.parent.left == x.parent:
-            rightRotate(x.parent.parent)
-            rightRotate(x.parent)
-        # zagzag
-        elif x.parent.right == x and x.parent.parent.right == x.parent:
-            leftRotate(x.parent.parent)
-            leftRotate(x.parent)
-        # zigzag
-        elif x.parent.left == x and x.parent.parent.right == x.parent:
-            rightRotate(x.parent)
-            leftRotate(x.parent)
-        # zagzig
+            continue
+        
+        if (x == x.parent.left) == (x.parent == x.parent.parent.left):
+            Rotate(x.parent)
         else:
-            leftRotate(x.parent)
-            rightRotate(x.parent)
+            Rotate(x)
+        
+        Rotate(x)
+    
+    Push(x)

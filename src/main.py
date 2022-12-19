@@ -18,7 +18,7 @@ tau = 5
 # eps = float(sys.argv[3])
 eps = 0.1
 # window = int(sys.argv[4])
-window = 100
+window = 500
 # stride = int(sys.argv[5])
 stride = 10
 
@@ -87,7 +87,7 @@ for i in range(0, int(len(data) / stride)):
                 
                 for n in narray:
                     if pnode != n and (n.x, n.y) in NepsPrev:
-                        if key >= currentTime and denforest.Connect(pnode, nodeTable[n.x, n.y], edgeTable):
+                        if key >= currentTime:
                             mst += 1
                 
             # determine the type of cluster evolution by the mst value
@@ -99,10 +99,7 @@ for i in range(0, int(len(data) / stride)):
                 evolType = 'merged'
                 
         # STEP 4: Updating Borders
-        flag = False
-
         if pnode.label == 'ncore':
-            flag = True
             for d in NepsPrev:
                 dnode = nodeTable[d[0], d[1]]
                 
@@ -118,52 +115,56 @@ for i in range(0, int(len(data) / stride)):
                 if dnode.label == 'ncore':
                     pnode.label = 'border'
                     if pnode.Tc > dnode.Tc:
-                        pnode.Tc = dnode.Tc
-                    flag = True
+                        dnode.Tc = pnode.Tc
 
-        if flag == False:
+        if pnode.label == '':
             pnode.label = 'noise'
-
+            
     # Delete
     if(i * stride >= window):
+        
         # Outdated data points in the stride
         spts = data[(i * stride) - window:(i + 1) * stride - window]
         
         for q in spts:
             qcoord = (q[0], q[1]) # coordinates
-            qnode = nodeTable[qcoord] # node in DenTree
 
             # STEP 1: Finding Expiring Nostalgic Cores
-            Eq = ncoreTable.get(currentTime) # set of ncores expired by the deletion of q
-            if Eq != None:
-                for x in Eq:
-                    L = [] # set of ncores linked to x
+            Eq = [] # set of ncores expired by the deletion of q
+            if ncoreTable.get(currentTime) != None:
+                Eq = ncoreTable[currentTime]
+                del ncoreTable[currentTime]
+            
+            # if Eq != None:
+            for x in Eq:
+                L = [] # set of ncores linked to x
+                
+                if edgeTable.get(x) != None:
+                    for edge in edgeTable[x]:
+                        if edge.m.label == 'ncore':
+                            L.append(edge.m)
+
+                # STEP 2: Cutting Links from MSTs
+                if len(L) == 0:
+                    evolType = 'dissipates'
+                elif len(L) == 1:
+                    evolType = 'shrinks'
+                else:
+                    evoltype = 'split'
                     
-                    if edgeTable.get(x) != None:
-                        for edge in edgeTable[x]:
-                            if edge.m.label == 'ncore':
-                                L.append(edge.m)
-                    
-                    # STEP 2: Cutting Links from MSTs
-                    if len(L) == 0:
-                        evolType = 'dissipates'
-                    elif len(L) == 1:
-                        evolType = 'shrinks'
-                    else:
-                        evoltype = 'split'
+                flag = 0
+                for y in L:
+                    # print(x, y)
+                    lctree.Cut(x, y, edgeTable)
 
-                    for y in L:
-                        lctree.Cut(x, y, edgeTable)
-
-                    # Reclassify x as either border or noise by the |L| value
-                    if len(L) >= 1:
-                        x.label = 'border'
-                    else:
-                        x.label = 'noise'
-        
-            # delete from the nodeTable
-            # del nodeTable[qcoord]
-
+                # Reclassify x as either border or noise by the |L| value
+                if len(L) >= 1:
+                    x.label = 'border'
+                else:
+                    x.label = 'noise'
+            
+            nodeTable.pop(qcoord, 'already deleted')
+            
     currentTime += 1
 
 # Clustering Result Print Labels
@@ -187,8 +188,8 @@ x1, y1 = zip(*cTable.keys())
 x2, y2 = zip(*bTable.keys())
 x3, y3 = zip(*nTable.keys())
 
-plt.scatter(x1, y1, color='red', s=3)
-plt.scatter(x2, y2, s=3)
 plt.scatter(x3, y3, color='grey', s=3)
+plt.scatter(x2, y2, s=3)
+plt.scatter(x1, y1, color='red', s=3)
 
 plt.show()
