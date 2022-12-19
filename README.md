@@ -52,3 +52,6 @@ Below example is the result of `python3.8 ./main.py ../dataset/simple.csv 5 0.1 
   - executes insert and delete using arguments (tau, eps, window size and stride size)
   
 - More details are described within the comments in the source codes
+
+### Reference
+[DenForest: Enabling Fast Deletion in Incremental Density-Based Clustering over Sliding Windows](https://dl.acm.org/doi/pdf/10.1145/3514221.3517833?casa_token=DkJOEtONPWkAAAAA:GbVjeghzGqQCMVC5e9iN5pulJtkBGkoMN52qxyGQOAnY8nLwyVUtzCy3ue-mTE2cqDr3EDfbdz0)
