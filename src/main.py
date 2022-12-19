@@ -64,7 +64,7 @@ for i in range(0, int(len(data) / stride)):
             # STEP 2: Determination of Core-expiration Time
             # Python dictionary preserves the insertion order
             # q is a point such that its timestamp q.T is the tau-th largest, p.Tc = q.T + |W|
-            Tc = int(list(NepsPrev.values())[len(NepsPrev) - tau].T + window / stride)
+            Tc = int(list(NepsPrev.values())[len(NepsPrev) - tau + 1].T + window / stride)
             pnode.Tc = Tc
             pnode.label = 'ncore'
 
@@ -153,6 +153,12 @@ for i in range(0, int(len(data) / stride)):
             
         for q in spts:
             nodeTable.pop((q[0], q[1]), 'already deleted')
+        
+        # change border to noise when there is no adjacent ncore
+        for n in nodeTable.values():
+            if n.label == 'border':
+                if n.Tc < currentTime:
+                    n.label = 'noise'
     
     currentTime += 1
     # denforest.Result(str(currentTime), nodeTable)
