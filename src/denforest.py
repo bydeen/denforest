@@ -42,5 +42,5 @@ def Result(name, nodeTable):
     plt.scatter(xborder, yborder, color='C0', s=2)
     plt.scatter(xcore, ycore, color='red', s=2)
 
-    plt.show()
     plt.savefig(name)
+    plt.show()
