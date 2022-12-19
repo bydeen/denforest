@@ -7,20 +7,46 @@ import matplotlib.pyplot as plt
 import denforest
 import lctree
 
+def Result(name, nodeTable):
+    # Clustering Result Print Labels
+    # for d in nodeTable:
+    #     print(d, nodeTable[d].label)
+
+    # Clustering Result Visualization
+    cTable = {} # ncore
+    bTable = {} # border
+    nTable = {} # noise
+
+    for d in nodeTable:
+        if nodeTable[d].label == 'ncore':
+            cTable.update({d:nodeTable[d]})
+        elif nodeTable[d].label == 'border':
+            bTable.update({d:nodeTable[d]})
+        else:
+            nTable.update({d:nodeTable[d]})
+            
+    x1, y1 = zip(*cTable.keys())
+    x2, y2 = zip(*bTable.keys())
+    x3, y3 = zip(*nTable.keys())
+
+    plt.scatter(x3, y3, color='grey', s=3)
+    plt.scatter(x2, y2, s=3)
+    plt.scatter(x1, y1, color='red', s=3)
+
+    plt.show()
+    filepath = './results/' + str(name)
+    plt.savefig(name)
+
+
 # Input data is in format (x, y) and sorted in time order
 # Use count-based window
 # The data points in the same stride are processed together
 
-# inputFile = sys.argv[1]
-inputFile = '../dataset/input.csv'
-# tau = int(sys.argv[2])
-tau = 5
-# eps = float(sys.argv[3])
-eps = 0.1
-# window = int(sys.argv[4])
-window = 500
-# stride = int(sys.argv[5])
-stride = 10
+inputFile = sys.argv[1]
+tau = int(sys.argv[2])
+eps = float(sys.argv[3])
+window = int(sys.argv[4])
+stride = int(sys.argv[5])
 
 data = np.loadtxt(open(inputFile), delimiter=",") # dataset
 
@@ -154,7 +180,6 @@ for i in range(0, int(len(data) / stride)):
                     
                 flag = 0
                 for y in L:
-                    # print(x, y)
                     lctree.Cut(x, y, edgeTable)
 
                 # Reclassify x as either border or noise by the |L| value
@@ -164,32 +189,7 @@ for i in range(0, int(len(data) / stride)):
                     x.label = 'noise'
             
             nodeTable.pop(qcoord, 'already deleted')
-            
+    
     currentTime += 1
 
-# Clustering Result Print Labels
-# for d in nodeTable:
-#     print(d, nodeTable[d].label)
-
-# Clustering Result Visualization
-cTable = {} # ncore
-bTable = {} # border
-nTable = {} # noise
-
-for d in nodeTable:
-    if nodeTable[d].label == 'ncore':
-        cTable.update({d:nodeTable[d]})
-    elif nodeTable[d].label == 'border':
-        bTable.update({d:nodeTable[d]})
-    else:
-        nTable.update({d:nodeTable[d]})
-        
-x1, y1 = zip(*cTable.keys())
-x2, y2 = zip(*bTable.keys())
-x3, y3 = zip(*nTable.keys())
-
-plt.scatter(x3, y3, color='grey', s=3)
-plt.scatter(x2, y2, s=3)
-plt.scatter(x1, y1, color='red', s=3)
-
-plt.show()
+Result('result', nodeTable)
