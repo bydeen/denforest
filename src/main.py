@@ -1,8 +1,6 @@
-#%%
 import sys
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 
 import denforest
 import lctree
@@ -10,17 +8,11 @@ import lctree
 # Input data is in format (x, y) and sorted in time order
 # Use count-based window
 # The data points in the same stride are processed together
-
-# inputFile = sys.argv[1]
-inputFile = '../dataset/input.csv'
-# tau = int(sys.argv[2])
-tau = 5
-# eps = float(sys.argv[3])
-eps = 0.1
-# window = int(sys.argv[4])
-window = 100
-# stride = int(sys.argv[5])
-stride = 10
+inputFile = sys.argv[1]
+tau = int(sys.argv[2])
+eps = float(sys.argv[3])
+window = int(sys.argv[4])
+stride = int(sys.argv[5])
 
 data = np.loadtxt(open(inputFile), delimiter=",") # dataset
 
@@ -35,6 +27,7 @@ nodeTable = {} # contains all the data points in the window, (x, y) as key
 edgeTable = {} # contains all the edges in the DenTree, Node n as key, (Node m, edge weight) as value
 
 for i in range(0, int(len(data) / stride)):
+    print('Stride', currentTime + 1, 'Processing')
     
     # New data points in the same stride
     spts = data[i * stride:(i + 1) * stride]
@@ -71,7 +64,7 @@ for i in range(0, int(len(data) / stride)):
             # STEP 2: Determination of Core-expiration Time
             # Python dictionary preserves the insertion order
             # q is a point such that its timestamp q.T is the tau-th largest, p.Tc = q.T + |W|
-            Tc = int(list(NepsPrev.values())[tau - 1].T + window / stride)
+            Tc = int(list(NepsPrev.values())[len(NepsPrev) - tau].T + window / stride)
             pnode.Tc = Tc
             pnode.label = 'ncore'
 
@@ -99,10 +92,7 @@ for i in range(0, int(len(data) / stride)):
                 evolType = 'merged'
                 
         # STEP 4: Updating Borders
-        flag = False
-
         if pnode.label == 'ncore':
-            flag = True
             for d in NepsPrev:
                 dnode = nodeTable[d[0], d[1]]
                 
@@ -118,77 +108,51 @@ for i in range(0, int(len(data) / stride)):
                 if dnode.label == 'ncore':
                     pnode.label = 'border'
                     if pnode.Tc > dnode.Tc:
-                        pnode.Tc = dnode.Tc
-                    flag = True
+                        dnode.Tc = pnode.Tc
 
-        if flag == False:
+        if pnode.label == '':
             pnode.label = 'noise'
-
+            
     # Delete
     if(i * stride >= window):
+        
         # Outdated data points in the stride
         spts = data[(i * stride) - window:(i + 1) * stride - window]
         
-        for q in spts:
-            qcoord = (q[0], q[1]) # coordinates
-            qnode = nodeTable[qcoord] # node in DenTree
-
-            # STEP 1: Finding Expiring Nostalgic Cores
-            Eq = ncoreTable.get(currentTime) # set of ncores expired by the deletion of q
-            if Eq != None:
-                for x in Eq:
-                    L = [] # set of ncores linked to x
-                    
-                    if edgeTable.get(x) != None:
-                        for edge in edgeTable[x]:
-                            if edge.m.label == 'ncore':
-                                L.append(edge.m)
-                    
-                    # STEP 2: Cutting Links from MSTs
-                    if len(L) == 0:
-                        evolType = 'dissipates'
-                    elif len(L) == 1:
-                        evolType = 'shrinks'
-                    else:
-                        evoltype = 'split'
-
-                    for y in L:
-                        lctree.Cut(x, y, edgeTable)
-
-                    # Reclassify x as either border or noise by the |L| value
-                    if len(L) >= 1:
-                        x.label = 'border'
-                    else:
-                        x.label = 'noise'
+        # STEP 1: Finding Expiring Nostalgic Cores
+        Eq = [] # set of ncores expired by the deletion of q
+        if ncoreTable.get(currentTime) != None:
+            Eq = ncoreTable[currentTime]
+            del ncoreTable[currentTime]
         
-            # delete from the nodeTable
-            # del nodeTable[qcoord]
+        for x in Eq:
+            L = [] # set of ncores linked to x
+            
+            if edgeTable.get(x) != None:
+                for edge in edgeTable[x]:
+                    if edge.m.label == 'ncore':
+                        L.append(edge.m)
 
+            # STEP 2: Cutting Links from MSTs
+            if len(L) == 0:
+                evolType = 'dissipates'
+            elif len(L) == 1:
+                evolType = 'shrinks'
+            else:
+                evoltype = 'split'
+                
+            for y in L:
+                lctree.Cut(x, y, edgeTable)
+
+            # Reclassify x as either border or noise by the |L| value
+            if len(L) >= 1:
+                x.label = 'border'
+            else:
+                x.label = 'noise'
+            
+        for q in spts:
+            nodeTable.pop((q[0], q[1]), 'already deleted')
+    
     currentTime += 1
 
-# Clustering Result Print Labels
-# for d in nodeTable:
-#     print(d, nodeTable[d].label)
-
-# Clustering Result Visualization
-cTable = {} # ncore
-bTable = {} # border
-nTable = {} # noise
-
-for d in nodeTable:
-    if nodeTable[d].label == 'ncore':
-        cTable.update({d:nodeTable[d]})
-    elif nodeTable[d].label == 'border':
-        bTable.update({d:nodeTable[d]})
-    else:
-        nTable.update({d:nodeTable[d]})
-        
-x1, y1 = zip(*cTable.keys())
-x2, y2 = zip(*bTable.keys())
-x3, y3 = zip(*nTable.keys())
-
-plt.scatter(x1, y1, color='red', s=3)
-plt.scatter(x2, y2, s=3)
-plt.scatter(x3, y3, color='grey', s=3)
-
-plt.show()
+denforest.Result('result', nodeTable)
