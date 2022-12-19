@@ -1,5 +1,5 @@
 # (2022 Fall) Theory of Computation Project
-2022-29307 김대현, 2022-23583 최유진
+  - 2022-29307 김대현  2022-23583 최유진
 
 ## Instruction
 
@@ -24,13 +24,24 @@ pip install numpy
 You can run the program using command below.
 ```
 python3.8 ./main.py <input_file_path> <tau_value> <eps_value> <window_size> <stride_size>
+
+ex)python3.8 ./main.py ../dataset/simple.csv 5 0.1 500 10
+ex)python3.8 ./main.py ../dataset/input.csv 5 0.1 2000 100
 ```
-ex)python3.8 ./main.py ../dataset/input.csv 5 0.1 1000 20
 
 ### Result
 Result is generated using matplotlib's pyplot modules. You can check the clustering result from figure named `result.png` in your working directory.
-Below example is the result of `python3.8 ./main.py ../dataset/simple.csv 5 0.1 500 10`
-![alt text](src/result.png)
+
+#### Example Result
+```
+python3.8 ./main.py ../dataset/simple.csv 5 0.1 500 10
+```
+![alt text](result/resultsmall.png)
+
+```
+python3.8 ./main.py ../dataset/input.csv 5 0.1 2000 100
+```
+![alt text](result/resultlarge.png)
 
 ## Implemenation Details
 
